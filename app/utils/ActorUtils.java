@@ -1,12 +1,8 @@
 package utils;
 
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import models.auditlog.AuditLogEvent;
 import play.Logger;
 import play.Play;
 import play.classloading.ApplicationClasses.ApplicationClass;
@@ -36,7 +32,7 @@ public class ActorUtils {
 				newInstance = (IActorProvider) javaClass.newInstance();
 			}
 		} catch (Exception e) {
-			Logger.error("Can't instanciate the IACtorProvider class ", e);
+			Logger.error("Can't instantiate the IACtorProvider class ", e);
 		}
 		return newInstance;
 	}

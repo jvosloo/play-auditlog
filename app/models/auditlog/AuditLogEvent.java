@@ -1,48 +1,60 @@
 package models.auditlog;
 
-import play.data.validation.Required;
-import play.db.jpa.Model;
-import play.modules.auditlog.Auditable.Operation;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import java.util.Date;
+import javax.persistence.Table;
+
+import play.data.validation.Required;
+import play.db.jpa.Model;
+import play.modules.auditlog.Auditable.Operation;
 
 @Entity
+@Table(name = "audit_log_event")
 public class AuditLogEvent extends Model {
 
-    @Required
-    public String model;
+	@Required
+	public String model;
 
-    @Required
-    public Long modelId;
+	@Required
+	public Long modelId;
+	
+	public Long accountId;
+	
+	public Long userId;	
 
-    @Required
-    @Enumerated(EnumType.STRING)
-    public Operation operation;
+	@Required
+	@Enumerated(EnumType.STRING)
+	public Operation operation;
 
-    public String property;
+	public String property;
 
-    public String oldValue;
+	public String oldValue;
 
-    public String newValue;
+	public String newValue;
 
-    public String actor;
+	public String actor;
 
-    public Date createdAt;
-    
-    public boolean processed = false;
-    
-    /**
-     * the key that can be used to identify same operations on the same object
-     * @return
-     */
-    public String getReferenceKey(){
-    	return this.model+":"+this.modelId + ":" + this.property + ":" + this.operation;
-    }
+	public Date createdAt;
+	
+	public Boolean admin = false;	
 
-	/* (non-Javadoc)
+	public boolean processed = false;
+
+	/**
+	 * the key that can be used to identify same operations on the same object
+	 * 
+	 * @return
+	 */
+	public String getReferenceKey() {
+		return this.model + ":" + this.modelId + ":" + this.property + ":" + this.operation;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -50,22 +62,22 @@ public class AuditLogEvent extends Model {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((actor == null) ? 0 : actor.hashCode());
-		result = prime * result
-				+ ((createdAt == null) ? 0 : createdAt.hashCode());
+		result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
 		result = prime * result + ((modelId == null) ? 0 : modelId.hashCode());
-		result = prime * result
-				+ ((newValue == null) ? 0 : newValue.hashCode());
-		result = prime * result
-				+ ((oldValue == null) ? 0 : oldValue.hashCode());
-		result = prime * result
-				+ ((operation == null) ? 0 : operation.hashCode());
-		result = prime * result
-				+ ((property == null) ? 0 : property.hashCode());
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		result = prime * result + ((accountId == null) ? 0 : accountId.hashCode());
+		result = prime * result + ((admin == null) ? 0 : admin.hashCode());
+		result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
+		result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
+		result = prime * result + ((operation == null) ? 0 : operation.hashCode());
+		result = prime * result + ((property == null) ? 0 : property.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -108,6 +120,27 @@ public class AuditLogEvent extends Model {
 		} else if (!modelId.equals(other.modelId)) {
 			return false;
 		}
+		if (userId == null) {
+			if (other.userId != null) {
+				return false;
+			}
+		} else if (!userId.equals(other.userId)) {
+			return false;
+		}			
+		if (accountId == null) {
+			if (other.accountId != null) {
+				return false;
+			}
+		} else if (!accountId.equals(other.accountId)) {
+			return false;
+		}	
+		if (admin == null) {
+			if (other.admin != null) {
+				return false;
+			}
+		} else if (!admin.equals(other.admin)) {
+			return false;
+		}			
 		if (newValue == null) {
 			if (other.newValue != null) {
 				return false;
@@ -134,7 +167,5 @@ public class AuditLogEvent extends Model {
 		}
 		return true;
 	}
-    
-    
 
 }

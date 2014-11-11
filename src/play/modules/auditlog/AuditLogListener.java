@@ -1,6 +1,8 @@
 package play.modules.auditlog;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
@@ -11,7 +13,7 @@ import org.hibernate.event.PostUpdateEventListener;
 
 import play.db.jpa.Model;
 import play.modules.auditlog.Auditable.Operation;
-import play.mvc.Scope.Session;
+import play.templates.JavaExtensions;
 
 public class AuditLogListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
 
@@ -32,7 +34,13 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
             String[] properties = event.getPersister().getPropertyNames();
             Object[] oldValues = event.getOldState();
             Object[] values = event.getState();
+            
             for (int i=0; i<properties.length; i++) {
+            	
+            	// Skip if the property is marked as not auditable
+            	if (hasAnnotation(entity.getClass(), properties[i], NotAuditable.class))
+            		continue;
+            	
                 boolean updated = false;
                 if (oldValues[i] == null) {
                     if (values[i] != null) {
@@ -42,15 +50,30 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
                     updated = true;
                 }
                 if (updated) {
-                    AuditLog.invoke("onUpdate",model,modelId,properties[i],
-                    		oldValues[i] == null ? "NULL" : oldValues[i].toString(),
-                            values[i] == null ? "NULL" : values[i].toString());
+                	
+                	String oldValue  = (oldValues[i] == null ? "NULL" : oldValues[i].toString());
+                	String value = (values[i] == null ? "NULL" : format(values[i]));
+                	
+                	// If the property is marked as masked
+                	if (hasAnnotation(entity.getClass(), properties[i], Mask.class)) {
+                		oldValue = mask(oldValue);
+                		value = mask(value);
+                	}
+                	
+                    AuditLog.invoke("onUpdate", model, modelId, properties[i], oldValue, value);
                 }
             }
         }
     }
 
-    public void onPostDelete(PostDeleteEvent event) {
+    private String format(Object object) {
+    	if (object instanceof Date)
+    		return JavaExtensions.format((Date) object, "yyyy-MM-dd");
+    	
+		return object.toString();
+	}
+
+	public void onPostDelete(PostDeleteEvent event) {
     	Model entity = (Model) event.getEntity();
         if (hasAnnotation(entity.getClass(),Operation.DELETE)) {
             String model = entity.getClass().getName();
@@ -73,5 +96,29 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
 		}
 		return false;
 	}
+    
+    /**
+     * Checks whether the specified property has the specified annotation
+     * @param clazz
+     * @param propertyName
+     * @param annotationClass
+     * @return
+     */
+    private boolean hasAnnotation(Class <? extends Model> clazz, String propertyName, Class<? extends Annotation> annotationClass) {
+    	
+		try {
+			return clazz.getField(propertyName).isAnnotationPresent(annotationClass);
+		} catch (Exception e) {
+			// Just swallow and move on - shouldn't happen
+		}
+		return false;
+    }
+    
+    private String mask(String value) {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i < value.length(); i++)
+            sb.append('*');
+        return sb.toString();
+    }    
 
 }

@@ -14,9 +14,30 @@ public class DefaultAuditLogEvents {
     	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the actor");
 		return provider.getActor();
     }
+    
+    private static Long getUserId() {
+    	IActorProvider provider = ActorUtils.getProvider();
+    	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the user ID");
+		return provider.getUserId();
+    }    
+    
+    private static Long getAccountId() {
+    	IActorProvider provider = ActorUtils.getProvider();
+    	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the account ID");
+		return provider.getAccountId();
+    }    
+    
+    private static boolean isAdmin() {
+    	IActorProvider provider = ActorUtils.getProvider();
+    	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the admin flag");
+		return provider.isAdmin();
+    }        
 
     static void onCreate(String model, Long modelId) {
         String actor = getActor();
+        Long userId = getUserId();
+        Long accountId = getAccountId();
+        boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -24,12 +45,18 @@ public class DefaultAuditLogEvents {
                 null,
                 null,
                 null,
-                actor
+                actor,
+                accountId,
+                userId,
+                admin
         ).now();
     }
 
     static void onUpdate(String model, Long modelId, String property, String oldValue, String value) {
     	String actor = getActor();
+    	Long userId = getUserId();
+    	Long accountId = getAccountId();
+    	boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -37,12 +64,18 @@ public class DefaultAuditLogEvents {
                 property,
                 oldValue,
                 value,
-                actor
+                actor,
+                accountId,
+                userId,
+                admin
         ).now();
     }
 
     static void onDelete(String model, Long modelId) {
     	String actor = getActor();
+    	Long userId = getUserId();
+    	Long accountId = getAccountId();
+    	boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -50,7 +83,10 @@ public class DefaultAuditLogEvents {
                 null,
                 null,
                 null,
-                actor
+                actor,
+                accountId,
+                userId,
+                admin
         ).now();
     }
 
