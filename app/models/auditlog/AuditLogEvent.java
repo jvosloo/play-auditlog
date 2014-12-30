@@ -41,8 +41,6 @@ public class AuditLogEvent extends Model {
 	
 	public Boolean admin = false;	
 
-	public boolean processed = false;
-
 	/**
 	 * the key that can be used to identify same operations on the same object
 	 * 
