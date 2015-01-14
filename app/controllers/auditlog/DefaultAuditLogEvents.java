@@ -30,7 +30,9 @@ public class DefaultAuditLogEvents {
     private static boolean isAdmin() {
     	IActorProvider provider = ActorUtils.getProvider();
     	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the admin flag");
-		return provider.isAdmin();
+    	// Need to check, because if it is created at app startup time/by the system - you will get a null result
+    	Boolean admin = provider.isAdmin();
+		return (admin == null ? false :admin.booleanValue()); 
     }        
 
     static void onCreate(String model, Long modelId) {
