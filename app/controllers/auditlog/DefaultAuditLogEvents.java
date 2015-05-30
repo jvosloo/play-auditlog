@@ -3,8 +3,6 @@ package controllers.auditlog;
 import jobs.auditlog.SaveAuditLogEvent;
 import play.modules.auditlog.Auditable.Operation;
 import play.modules.auditlog.IActorProvider;
-import play.mvc.Controller;
-import play.mvc.Scope.Session;
 import utils.ActorUtils;
 
 public class DefaultAuditLogEvents {
@@ -27,19 +25,10 @@ public class DefaultAuditLogEvents {
 		return provider.getAccountId();
     }    
     
-    private static boolean isAdmin() {
-    	IActorProvider provider = ActorUtils.getProvider();
-    	if (provider == null) throw new RuntimeException("You need to implement the interface IActorProvider to tell me how to get the admin flag");
-    	// Need to check, because if it is created at app startup time/by the system - you will get a null result
-    	Boolean admin = provider.isAdmin();
-		return (admin == null ? false :admin.booleanValue()); 
-    }        
-
     static void onCreate(String model, Long modelId) {
         String actor = getActor();
         Long userId = getUserId();
         Long accountId = getAccountId();
-        boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -49,8 +38,7 @@ public class DefaultAuditLogEvents {
                 null,
                 actor,
                 accountId,
-                userId,
-                admin
+                userId
         ).now();
     }
 
@@ -58,7 +46,6 @@ public class DefaultAuditLogEvents {
     	String actor = getActor();
     	Long userId = getUserId();
     	Long accountId = getAccountId();
-    	boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -68,8 +55,7 @@ public class DefaultAuditLogEvents {
                 value,
                 actor,
                 accountId,
-                userId,
-                admin
+                userId
         ).now();
     }
 
@@ -77,7 +63,6 @@ public class DefaultAuditLogEvents {
     	String actor = getActor();
     	Long userId = getUserId();
     	Long accountId = getAccountId();
-    	boolean admin = isAdmin();
         new SaveAuditLogEvent(
                 model,
                 modelId,
@@ -87,8 +72,7 @@ public class DefaultAuditLogEvents {
                 null,
                 actor,
                 accountId,
-                userId,
-                admin
+                userId
         ).now();
     }
 

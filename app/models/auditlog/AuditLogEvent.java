@@ -39,8 +39,6 @@ public class AuditLogEvent extends Model {
 
 	public Date createdAt;
 	
-	public Boolean admin = false;	
-
 	/**
 	 * the key that can be used to identify same operations on the same object
 	 * 
@@ -65,7 +63,6 @@ public class AuditLogEvent extends Model {
 		result = prime * result + ((modelId == null) ? 0 : modelId.hashCode());
 		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
 		result = prime * result + ((accountId == null) ? 0 : accountId.hashCode());
-		result = prime * result + ((admin == null) ? 0 : admin.hashCode());
 		result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
 		result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
 		result = prime * result + ((operation == null) ? 0 : operation.hashCode());
@@ -132,13 +129,6 @@ public class AuditLogEvent extends Model {
 		} else if (!accountId.equals(other.accountId)) {
 			return false;
 		}	
-		if (admin == null) {
-			if (other.admin != null) {
-				return false;
-			}
-		} else if (!admin.equals(other.admin)) {
-			return false;
-		}			
 		if (newValue == null) {
 			if (other.newValue != null) {
 				return false;
