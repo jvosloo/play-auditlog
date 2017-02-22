@@ -2,6 +2,8 @@ package jobs.auditlog;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import models.auditlog.AuditLogEvent;
 import play.jobs.Job;
 import play.modules.auditlog.Auditable.Operation;
@@ -24,7 +26,7 @@ public class SaveAuditLogEvent extends Job {
         this.operation = operation;
         this.property = property;
         this.oldValue = oldValue;
-        this.newValue = newValue;
+        this.newValue = StringUtils.abbreviate(newValue, 255);
         this.actor = actor;
         this.userId = userId;
         this.accountId = accountId;
