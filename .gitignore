@@ -15,3 +15,4 @@ settings/
 ehthumbs.db
 Thumbs.db
 /.settings
+/public/
