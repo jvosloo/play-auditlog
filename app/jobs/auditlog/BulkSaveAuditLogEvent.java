@@ -2,6 +2,8 @@ package jobs.auditlog;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import models.auditlog.AuditLogEvent;
 import play.jobs.Job;
 import play.modules.auditlog.Auditable.Operation;
@@ -33,18 +35,7 @@ public class BulkSaveAuditLogEvent extends Job {
     public void doJob() {
     	
     	for (Long modelId : this.modelIds) {
-    	
-	        AuditLogEvent event = new AuditLogEvent();
-	        event.model = model;
-	        event.modelId = modelId;
-	        event.operation = operation;
-	        event.property = property;
-	        event.oldValue = oldValue;
-	        event.newValue = newValue;
-	        event.actor = actor;
-	        event.userId = userId;
-	        event.accountId = accountId;
-	        event.createdAt = new Date();
+	        AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, operation, property, oldValue, newValue);
 	        event.save();
     	}
     }

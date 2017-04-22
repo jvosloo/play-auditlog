@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.mchange.v2.c3p0.impl.NewProxyDatabaseMetaData;
+
 import models.auditlog.AuditLogEvent;
 import play.jobs.Job;
 import play.modules.auditlog.Auditable.Operation;
@@ -26,24 +28,14 @@ public class SaveAuditLogEvent extends Job {
         this.operation = operation;
         this.property = property;
         this.oldValue = oldValue;
-        this.newValue = StringUtils.abbreviate(newValue, 255);
+        this.newValue = newValue;
         this.actor = actor;
         this.userId = userId;
         this.accountId = accountId;
     }
 
     public void doJob() {
-        AuditLogEvent event = new AuditLogEvent();
-        event.model = model;
-        event.modelId = modelId;
-        event.operation = operation;
-        event.property = property;
-        event.oldValue = oldValue;
-        event.newValue = newValue;
-        event.actor = actor;
-        event.userId = userId;
-        event.accountId = accountId;
-        event.createdAt = new Date();
+        AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, operation, property, oldValue, newValue);
         event.save();
     }
 

@@ -1,5 +1,7 @@
 /dist
 /eclipse
+/lib/
+/public/
 
 # Ignore these files
 .classpath
@@ -15,4 +17,3 @@ settings/
 ehthumbs.db
 Thumbs.db
 /.settings
-/public/

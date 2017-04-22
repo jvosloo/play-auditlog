@@ -2,53 +2,129 @@ package models.auditlog;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 
-import play.data.validation.Required;
-import play.db.jpa.Model;
+import org.apache.commons.lang.StringUtils;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import play.Play;
 import play.modules.auditlog.Auditable.Operation;
 
-@Entity
-@Table(name = "audit_log_event")
-public class AuditLogEvent extends Model {
 
-	@Required
-	public String model;
+public class AuditLogEvent {
+    
+    private Long accountId;
+    
+    private Long userId;  
+    
+    private String actor;    
+    
+    private String model;
 
-	@Required
-	public Long modelId;
-	
-	public Long accountId;
-	
-	public Long userId;	
+    private Long modelId;
 
-	@Required
 	@Enumerated(EnumType.STRING)
-	public Operation operation;
+	private Operation operation;
 
-	public String property;
+	private String property;
 
-	public String oldValue;
+	private String oldValue;
 
-	public String newValue;
+	private String newValue;
 
-	public String actor;
-
-	public Date createdAt;
+	private Long createdAt;
 	
-	/**
-	 * the key that can be used to identify same operations on the same object
-	 * 
-	 * @return
-	 */
-	public String getReferenceKey() {
-		return this.model + ":" + this.modelId + ":" + this.property + ":" + this.operation;
-	}
+	private String model_modelId;
+	
+	
+    // ---	
 
-	/*
+	public AuditLogEvent(Long accountId, Long userId, String actor, String model, Long modelId, Operation operation, String property, String oldValue, String newValue) {
+        super();
+        this.accountId = accountId;
+        this.userId = userId;
+        this.actor = actor;
+        this.model = model;
+        this.modelId = modelId;
+        this.operation = operation;
+        this.property = property;
+        this.oldValue = oldValue;
+        this.newValue = StringUtils.abbreviate(newValue, 255);
+        this.createdAt = new Date().getTime();
+        this.model_modelId = model + "_" + modelId;
+    }
+	
+    // ---	
+
+    
+    public Long getAccountId() {
+    
+        return accountId;
+    }
+
+    
+    public Long getUserId() {
+    
+        return userId;
+    }
+
+    
+    public String getActor() {
+    
+        return actor;
+    }
+
+    
+    public String getModel() {
+    
+        return model;
+    }
+
+    
+    public Long getModelId() {
+    
+        return modelId;
+    }
+
+    
+    public Operation getOperation() {
+    
+        return operation;
+    }
+
+    
+    public String getProperty() {
+    
+        return property;
+    }
+
+    
+    public String getOldValue() {
+    
+        return oldValue;
+    }
+
+    
+    public String getNewValue() {
+    
+        return newValue;
+    }
+
+    
+    public Long getCreatedAt() {
+    
+        return createdAt;
+    }
+
+    public String getModel_modelId() {
+
+        return model_modelId;
+    }
+
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#hashCode()
@@ -155,5 +231,20 @@ public class AuditLogEvent extends Model {
 		}
 		return true;
 	}
+	
+    public void save() {
+        
+        // If Firebase not enabled... then we're out of luck
+        if (!Boolean.valueOf(Play.configuration.getProperty("firebase.enabled")))
+            return;
+	    
+	    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+	    
+	    String path = "auditlog/" + (this.accountId == null ? "system" : this.accountId);
+	    
+	    DatabaseReference auditLogref = database.getReference(path);
+	    auditLogref.push().setValue(this);
+        
+    }
 
 }
