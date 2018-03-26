@@ -1,5 +1,8 @@
-self: play -> play-auditlog 2.0
+self: play -> play-auditlog 2.1
 
 require:
     - play 1.3
-    - com.google.firebase -> firebase-admin 4.1.5
+    - com.google.firebase -> firebase-admin 5.9.0:
+        exclude:
+        - com.google.cloud -> google-cloud-firestore
+        - com.google.cloud -> google-cloud-storage

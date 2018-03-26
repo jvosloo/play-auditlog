@@ -1,5 +1,6 @@
 package models.auditlog;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 
 import javax.persistence.EnumType;
@@ -8,6 +9,7 @@ import javax.persistence.Enumerated;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 
 import play.Play;
@@ -39,6 +41,8 @@ public class AuditLogEvent {
 	
 	private String model_modelId;
 	
+    private String url;	
+	
 	
     // ---	
 
@@ -58,6 +62,25 @@ public class AuditLogEvent {
     }
 	
     // ---	
+	
+    @Exclude
+    public String getUrl() {
+        
+        if (url == null) {
+        
+            try {
+                Class<?> cls = Class.forName(model);
+                Method method = cls.getDeclaredMethod("findById", Object.class);
+                Object modelObj = method.invoke(null, modelId);
+                method = cls.getDeclaredMethod("getPath");
+                url = (String) method.invoke(modelObj);
+            } catch (Exception e) {
+                // Do nothing
+            }
+        }
+        
+        return url;
+    }	
 
     
     public Long getAccountId() {
@@ -243,7 +266,7 @@ public class AuditLogEvent {
 	    String path = "auditlog/" + (this.accountId == null ? "system" : this.accountId);
 	    
 	    DatabaseReference auditLogref = database.getReference(path);
-	    auditLogref.push().setValue(this);
+	    auditLogref.push().setValueAsync(this);
         
     }
 
