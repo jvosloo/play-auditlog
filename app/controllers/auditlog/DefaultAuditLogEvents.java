@@ -1,6 +1,5 @@
 package controllers.auditlog;
 
-import jobs.auditlog.SaveAuditLogEvent;
 import models.auditlog.AuditLogEvent;
 import play.modules.auditlog.Auditable.Operation;
 import play.modules.auditlog.IActorProvider;
@@ -27,12 +26,10 @@ public class DefaultAuditLogEvents {
     }    
     
     static void onCreate(String model, Long modelId) {
-        String actor = getActor();
-        Long userId = getUserId();
-        Long accountId = getAccountId();
         
-        AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, Operation.CREATE, null, null, null);
-        event.save();
+        // The Firebase-based save() method is already async, no need for the Job-based method below
+        new AuditLogEvent(getAccountId(), getUserId(), getActor(), model, modelId, Operation.CREATE, null, null, null).save();
+        
 //        new SaveAuditLogEvent(
 //                model,
 //                modelId,
@@ -47,12 +44,9 @@ public class DefaultAuditLogEvents {
     }
 
     static void onUpdate(String model, Long modelId, String property, String oldValue, String newValue) {
-    	String actor = getActor();
-    	Long userId = getUserId();
-    	Long accountId = getAccountId();
     	
-        AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, Operation.UPDATE, property, oldValue, newValue);
-        event.save();
+        // The Firebase-based save() method is already async, no need for the Job-based method below    	
+        new AuditLogEvent(getAccountId(), getUserId(), getActor(), model, modelId, Operation.UPDATE, property, oldValue, newValue).save();
         
 //        new SaveAuditLogEvent(
 //                model,
@@ -68,12 +62,9 @@ public class DefaultAuditLogEvents {
     }
 
     static void onDelete(String model, Long modelId) {
-    	String actor = getActor();
-    	Long userId = getUserId();
-    	Long accountId = getAccountId();
     	
-        AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, Operation.DELETE, null, null, null);
-        event.save();    	
+        // The Firebase-based save() method is already async, no need for the Job-based method below
+        new AuditLogEvent(getAccountId(), getUserId(), getActor(), model, modelId, Operation.DELETE, null, null, null).save();
     	
 //        new SaveAuditLogEvent(
 //                model,

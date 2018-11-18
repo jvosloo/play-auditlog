@@ -27,7 +27,7 @@ public class ActorUtils {
 		List<ApplicationClass> assignableClasses = Play.classes.getAssignableClasses(IActorProvider.class);
 		IActorProvider newInstance = null;
 		try {
-			if (assignableClasses != null && assignableClasses.size() > 0){
+			if (assignableClasses != null && !assignableClasses.isEmpty()){
 				Class<?> javaClass = assignableClasses.get(0).javaClass;
 				newInstance = (IActorProvider) javaClass.newInstance();
 			}

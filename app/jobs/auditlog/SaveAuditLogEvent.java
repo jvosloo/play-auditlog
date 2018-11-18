@@ -1,11 +1,5 @@
 package jobs.auditlog;
 
-import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.mchange.v2.c3p0.impl.NewProxyDatabaseMetaData;
-
 import models.auditlog.AuditLogEvent;
 import play.jobs.Job;
 import play.modules.auditlog.Auditable.Operation;
@@ -34,6 +28,7 @@ public class SaveAuditLogEvent extends Job {
         this.accountId = accountId;
     }
 
+    @Override
     public void doJob() {
         AuditLogEvent event = new AuditLogEvent(accountId, userId, actor, model, modelId, operation, property, oldValue, newValue);
         event.save();

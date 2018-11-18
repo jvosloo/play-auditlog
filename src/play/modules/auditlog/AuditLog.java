@@ -17,7 +17,7 @@ public class AuditLog {
             return null;
         }
         List<Class> classes = Play.classloader.getAssignableClasses(auditLog);
-        if (classes.size() > 0) {
+        if (!classes.isEmpty()) {
             auditLog = classes.get(0);
         }
         try {

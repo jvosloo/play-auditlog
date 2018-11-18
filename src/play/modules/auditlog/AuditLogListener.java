@@ -10,30 +10,31 @@ import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
+import org.hibernate.persister.entity.EntityPersister;
 
-import play.db.jpa.Model;
+import play.db.jpa.GenericModel;
 import play.modules.auditlog.Auditable.Operation;
 import play.templates.JavaExtensions;
 
 public class AuditLogListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
 
     public void onPostInsert(PostInsertEvent event) {
-        if(event.getEntity() instanceof Model) {
-        	Model entity = (Model) event.getEntity();
+        if(event.getEntity() instanceof GenericModel) {
+            GenericModel entity = (GenericModel) event.getEntity();
         	if (hasAnnotation(entity.getClass(),Operation.CREATE)) {
                 String model = entity.getClass().getName();
-                Long modelId = entity.id;
+                Long modelId = (Long) entity._key();
                 AuditLog.invoke("onCreate",model,modelId);
             }
         }
     }
 
     public void onPostUpdate(PostUpdateEvent event) {
-        if(event.getEntity() instanceof Model) {
-            Model entity = (Model) event.getEntity();
+        if(event.getEntity() instanceof GenericModel) {
+            GenericModel entity = (GenericModel) event.getEntity();
             if (hasAnnotation(entity.getClass(),Operation.UPDATE)) {
                 String model = entity.getClass().getName();
-                Long modelId = entity.id;
+                Long modelId = (Long) entity._key();
                 String[] properties = event.getPersister().getPropertyNames();
                 Object[] oldValues = event.getOldState();
                 Object[] values = event.getState();
@@ -78,11 +79,11 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
 	}
 
 	public void onPostDelete(PostDeleteEvent event) {
-        if(event.getEntity() instanceof Model) {
-        	Model entity = (Model) event.getEntity();
+        if(event.getEntity() instanceof GenericModel) {
+            GenericModel entity = (GenericModel) event.getEntity();
             if (hasAnnotation(entity.getClass(),Operation.DELETE)) {
                 String model = entity.getClass().getName();
-                Long modelId = entity.id;
+                Long modelId = (Long) entity._key();
                 AuditLog.invoke("onDelete",model,modelId);
             }
         }
@@ -95,7 +96,7 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
      * @param type
      * @return
      */
-    private boolean hasAnnotation(Class <? extends Model> clazz, Operation type){
+    private boolean hasAnnotation(Class <? extends GenericModel> clazz, Operation type){
 		if (clazz.isAnnotationPresent(Auditable.class)) {
 			Auditable annotation = clazz.getAnnotation(Auditable.class);
 			return Arrays.asList(annotation.recordOn()).contains(type);
@@ -110,7 +111,7 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
      * @param annotationClass
      * @return
      */
-    private boolean hasAnnotation(Class <? extends Model> clazz, String propertyName, Class<? extends Annotation> annotationClass) {
+    private boolean hasAnnotation(Class <? extends GenericModel> clazz, String propertyName, Class<? extends Annotation> annotationClass) {
     	
 		try {
 			return clazz.getField(propertyName).isAnnotationPresent(annotationClass);
@@ -125,6 +126,12 @@ public class AuditLogListener implements PostInsertEventListener, PostUpdateEven
         for(int i=0; i < value.length(); i++)
             sb.append('*');
         return sb.toString();
+    }
+
+    @Override
+    public boolean requiresPostCommitHanding(EntityPersister arg0) {
+
+        return false;
     }    
 
 }
