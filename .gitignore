@@ -2,6 +2,7 @@
 /eclipse
 /lib/
 /public/
+/tmp
 
 # Ignore these files
 .classpath
